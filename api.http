@@ -1,0 +1,58 @@
+// Categories
+###
+GET http://localhost:8080/categories
+###
+
+###
+POST http://localhost:8080/categories
+Content-Type: application/json
+
+{
+  "name": "Estudos"
+}
+###
+
+// Tasks
+
+###
+GET http://localhost:8080/tasks
+###
+
+###
+GET http://localhost:8080/tasks?status=DONE
+###
+
+###
+POST http://localhost:8080/tasks
+Content-Type: application/json
+
+{
+  "title": "Configurar banco de dados Produção",
+  "description": "Criar a instância no AWS RDS e pegar as credenciais.",
+  "priority": "HIGH",
+  "dueTime": "2026-12-31T23:59:59.000Z",
+  "categoryId": "de2adf9b-eb08-40f8-aea2-9594569e228d"
+}
+###
+
+###
+@id = de2adf9b-eb08-40f8-aea2-9594569e228d
+PATCH http://localhost:8080/tasks/b43ec9e2-7f51-4bf6-b144-80b525244e80
+Content-Type: application/json
+
+{
+  "title": "Estudar Spring Data JPA",
+  "description": "Fazer os relacionamentos funcionarem",
+  "priority": "MEDIUM",
+  "categoryId": "de2adf9b-eb08-40f8-aea2-9594569e228d"
+}
+###
+
+###
+PATCH http://localhost:8080/tasks/c1ab8137-c359-492a-916e-06c76ec92fec/complete
+Content-Type: application/json
+###
+
+###
+DELETE http://localhost:8080/tasks/c1ab8137-c359-492a-916e-06c76ec92fec
+###
