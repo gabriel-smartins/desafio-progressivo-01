@@ -1,5 +1,6 @@
 package com.github.gabrielsmartins.taskmanager.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -63,7 +64,6 @@ public class GlobalHandlerException {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    // Tratamento genérico para erros não mapeados (Garante que a API nunca retorne o HTML padrão do Spring)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         var error = new ErrorResponse(
@@ -73,5 +73,17 @@ public class GlobalHandlerException {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+
+        var error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de Dados",
+                "Já existe um registro com esses dados no sistema (ex: e-mail já cadastrado)."
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 }

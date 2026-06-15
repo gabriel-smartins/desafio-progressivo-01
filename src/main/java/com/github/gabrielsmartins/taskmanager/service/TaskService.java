@@ -42,7 +42,12 @@ public class TaskService {
         var task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada."));
 
-        validateAccess(task, user);
+        boolean isOwner = task.getCreator().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == UserRole.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("Você não tem permissão para acessar este recurso.");
+        }
 
         return task;
     }

@@ -4,6 +4,7 @@ import com.github.gabrielsmartins.taskmanager.exception.ResourceNotFoundExceptio
 import com.github.gabrielsmartins.taskmanager.model.User;
 import com.github.gabrielsmartins.taskmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,6 +22,9 @@ public class AuthService implements UserDetailsService {
         }
 
     public void save(User user) {
+        if(userRepository.existsByEmail(user.getEmail())) {
+            throw new DataIntegrityViolationException("Email already exists.");
+        }
         userRepository.save(user);
     }
 

@@ -6,6 +6,7 @@ import com.github.gabrielsmartins.taskmanager.controller.dto.request.RegisterReq
 import com.github.gabrielsmartins.taskmanager.controller.dto.response.AuthResponse;
 import com.github.gabrielsmartins.taskmanager.model.RefreshToken;
 import com.github.gabrielsmartins.taskmanager.model.User;
+import com.github.gabrielsmartins.taskmanager.model.UserRole;
 import com.github.gabrielsmartins.taskmanager.service.AuthService;
 import com.github.gabrielsmartins.taskmanager.service.RefreshTokenService;
 import com.github.gabrielsmartins.taskmanager.service.TokenService;
@@ -57,7 +58,7 @@ public class AuthController {
     public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request) {
         String encryptedPassword = passwordEncoder.encode(request.password());
 
-        User newUser = new User(request.name(), request.email(), encryptedPassword, request.role());
+        User newUser = new User(request.name(), request.email(), encryptedPassword, UserRole.USER);
 
         authService.save(newUser);
 
@@ -70,10 +71,13 @@ public class AuthController {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
+                    refreshTokenService.deleteByUser(user);
+
+                    var newRefreshToken = refreshTokenService.save(user, expirationRefreshTokenInSeconds);
 
                     String newAccessToken = tokenService.generateToken(user, expirationTokenInSeconds);
 
-                    return ResponseEntity.ok(new AuthResponse(newAccessToken, request.refreshToken()));
+                    return ResponseEntity.ok(new AuthResponse(newAccessToken, newRefreshToken.getToken()));
                 })
                 .orElseThrow(() -> new RuntimeException("Refresh Token inválido ou não encontrado."));
     }
