@@ -53,8 +53,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> findById(@PathVariable UUID id, @AuthenticationPrincipal User user)
-            throws AccessDeniedException {
+    public ResponseEntity<TaskResponse> findById(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         var task = taskService.findById(id, user);
 
         var response = new TaskResponse(task);
@@ -65,7 +64,7 @@ public class TaskController {
     @PatchMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable UUID id,
                                        @RequestBody TaskUpdateRequest request,
-                                       @AuthenticationPrincipal User user) throws AccessDeniedException {
+                                       @AuthenticationPrincipal User user) {
         var payload = request.toDomain();
         taskService.update(id, payload, request.categoryId(), user);
 
@@ -73,16 +72,14 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable UUID id, @AuthenticationPrincipal User user)
-            throws AccessDeniedException {
+    public ResponseEntity<Void> completeTask(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         taskService.completeTask(id, user);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id, @AuthenticationPrincipal User user)
-            throws AccessDeniedException {
+    public ResponseEntity<Void> delete(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         taskService.delete(id, user);
 
         return ResponseEntity.noContent().build();

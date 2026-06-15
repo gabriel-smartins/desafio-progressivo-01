@@ -1,5 +1,6 @@
 package com.github.gabrielsmartins.taskmanager.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalHandlerException {
 
@@ -77,6 +79,7 @@ public class GlobalHandlerException {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("Erro inesperado: {}", ex.getMessage());
 
         var error = new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
@@ -85,5 +88,17 @@ public class GlobalHandlerException {
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
+
+        var error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Não Autorizado",
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }

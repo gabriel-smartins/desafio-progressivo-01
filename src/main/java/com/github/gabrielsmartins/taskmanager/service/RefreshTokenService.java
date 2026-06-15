@@ -1,5 +1,6 @@
 package com.github.gabrielsmartins.taskmanager.service;
 
+import com.github.gabrielsmartins.taskmanager.exception.InvalidTokenException;
 import com.github.gabrielsmartins.taskmanager.model.RefreshToken;
 import com.github.gabrielsmartins.taskmanager.model.User;
 import com.github.gabrielsmartins.taskmanager.repository.RefreshTokenRepository;
@@ -36,9 +37,9 @@ public class RefreshTokenService {
 
     @Transactional
     public RefreshToken verifyExpiration(RefreshToken refreshToken) {
-        if(refreshToken.isExpired()) {
+        if (refreshToken.isExpired()) {
             refreshTokenRepository.delete(refreshToken);
-            throw new RuntimeException("Refresh token expired. Please provide a valid token.");
+            throw new InvalidTokenException("Refresh token expired. Please provide a valid token.");
         }
         return refreshToken;
     }

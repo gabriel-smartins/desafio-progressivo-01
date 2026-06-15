@@ -4,6 +4,7 @@ import com.github.gabrielsmartins.taskmanager.controller.dto.request.AuthRequest
 import com.github.gabrielsmartins.taskmanager.controller.dto.request.RefreshTokenRequest;
 import com.github.gabrielsmartins.taskmanager.controller.dto.request.RegisterRequest;
 import com.github.gabrielsmartins.taskmanager.controller.dto.response.AuthResponse;
+import com.github.gabrielsmartins.taskmanager.exception.InvalidTokenException;
 import com.github.gabrielsmartins.taskmanager.model.RefreshToken;
 import com.github.gabrielsmartins.taskmanager.model.User;
 import com.github.gabrielsmartins.taskmanager.model.UserRole;
@@ -17,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -79,7 +78,7 @@ public class AuthController {
 
                     return ResponseEntity.ok(new AuthResponse(newAccessToken, newRefreshToken.getToken()));
                 })
-                .orElseThrow(() -> new RuntimeException("Refresh Token inválido ou não encontrado."));
+                .orElseThrow(() -> new InvalidTokenException("Refresh Token inválido ou não encontrado."));
     }
 
     @PostMapping("/logout")

@@ -8,10 +8,10 @@ import com.github.gabrielsmartins.taskmanager.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
 @Service
@@ -38,7 +38,7 @@ public class TaskService {
     }
 
     @Transactional(readOnly = true)
-    public Task findById(UUID id, User user) throws AccessDeniedException {
+    public Task findById(UUID id, User user) {
         var task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada."));
 
@@ -53,7 +53,7 @@ public class TaskService {
     }
 
     @Transactional
-    public void update(UUID id, Task payload, UUID categoryId, User user) throws AccessDeniedException {
+    public void update(UUID id, Task payload, UUID categoryId, User user) {
         var entity = this.findById(id, user);
 
         if (entity.getStatus() == Status.DONE) {
@@ -68,14 +68,14 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeTask(UUID id, User user) throws AccessDeniedException {
+    public void completeTask(UUID id, User user) {
         var entity = this.findById(id, user);
 
         entity.setStatus(Status.DONE);
     }
 
     @Transactional
-    public void delete(UUID id, User user) throws AccessDeniedException {
+    public void delete(UUID id, User user) {
         var entity = this.findById(id, user);
         taskRepository.delete(entity);
     }
@@ -85,15 +85,4 @@ public class TaskService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada."));
     }
-
-    private void validateAccess(Task task, User usuarioLogado) throws AccessDeniedException {
-        boolean isAdmin = usuarioLogado.getRole() == UserRole.ADMIN;
-        boolean isOwner = task.getCreator().getId().equals(usuarioLogado.getId());
-
-        if (!isAdmin && !isOwner) {
-            throw new AccessDeniedException("Você não tem permissão para acessar ou modificar esta tarefa.");
-        }
-    }
-
-
 }
