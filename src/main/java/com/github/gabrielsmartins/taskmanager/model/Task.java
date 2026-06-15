@@ -1,11 +1,13 @@
 package com.github.gabrielsmartins.taskmanager.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -35,11 +37,15 @@ public class Task {
     private Priority priority;
 
     @Column(name = "due_time", nullable = false)
-    private Timestamp dueTime;
+    private LocalDateTime dueTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id")
+    private User creator;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp

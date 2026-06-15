@@ -6,7 +6,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record TaskRequest(
@@ -19,7 +19,7 @@ public record TaskRequest(
         Priority priority,
 
         @FutureOrPresent(message = "A data de entrega não pode estar no passado.")
-        Timestamp dueTime,
+        LocalDateTime dueTime,
 
         UUID categoryId
 ) {

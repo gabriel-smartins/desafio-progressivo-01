@@ -5,6 +5,7 @@ import com.github.gabrielsmartins.taskmanager.controller.dto.request.TaskUpdateR
 import com.github.gabrielsmartins.taskmanager.controller.dto.response.TaskResponse;
 import com.github.gabrielsmartins.taskmanager.model.Priority;
 import com.github.gabrielsmartins.taskmanager.model.Status;
+import com.github.gabrielsmartins.taskmanager.model.User;
 import com.github.gabrielsmartins.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
 @RestController
@@ -26,9 +29,10 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskResponse> save(@RequestBody @Valid TaskRequest request) {
+    public ResponseEntity<TaskResponse> save(@RequestBody @Valid TaskRequest request,
+                                             @AuthenticationPrincipal User user) {
         var taskToSave = request.toDomain();
-        var savedTask = taskService.save(taskToSave, request.categoryId());
+        var savedTask = taskService.save(taskToSave, request.categoryId(), user);
         var response = new TaskResponse(savedTask);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -39,8 +43,9 @@ public class TaskController {
                                                                @RequestParam(required = false) Priority priority,
                                                                @PageableDefault(size = 20,
                                                                        sort = "createdAt",
-                                                                       direction = Sort.Direction.DESC) Pageable pageable) {
-        var tasks = taskService.findAllByFilter(status, priority, pageable);
+                                                                       direction = Sort.Direction.DESC) Pageable pageable,
+                                                               @AuthenticationPrincipal User user) {
+        var tasks = taskService.findAllByFilter(status, priority, pageable, user);
 
         var response = tasks.map(TaskResponse::new);
 
@@ -48,8 +53,9 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> findById(@PathVariable UUID id) {
-        var task = taskService.findById(id);
+    public ResponseEntity<TaskResponse> findById(@PathVariable UUID id, @AuthenticationPrincipal User user)
+            throws AccessDeniedException {
+        var task = taskService.findById(id, user);
 
         var response = new TaskResponse(task);
 
@@ -57,23 +63,27 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> update(@PathVariable UUID id, @RequestBody TaskUpdateRequest request) {
+    public ResponseEntity<Void> update(@PathVariable UUID id,
+                                       @RequestBody TaskUpdateRequest request,
+                                       @AuthenticationPrincipal User user) throws AccessDeniedException {
         var payload = request.toDomain();
-        taskService.update(id, payload, request.categoryId());
+        taskService.update(id, payload, request.categoryId(), user);
 
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/complete")
-    public ResponseEntity<Void> completeTask(@PathVariable UUID id) {
-        taskService.completeTask(id);
+    public ResponseEntity<Void> completeTask(@PathVariable UUID id, @AuthenticationPrincipal User user)
+            throws AccessDeniedException {
+        taskService.completeTask(id, user);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        taskService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id, @AuthenticationPrincipal User user)
+            throws AccessDeniedException {
+        taskService.delete(id, user);
 
         return ResponseEntity.noContent().build();
     }

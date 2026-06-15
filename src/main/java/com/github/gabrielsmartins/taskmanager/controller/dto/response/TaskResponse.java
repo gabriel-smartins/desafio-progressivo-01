@@ -6,12 +6,13 @@ import com.github.gabrielsmartins.taskmanager.model.Status;
 import com.github.gabrielsmartins.taskmanager.model.Task;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record TaskResponse(UUID id, String title,
                            String description, Status status,
-                           Priority priority, Timestamp dueTime) {
+                           Priority priority, LocalDateTime dueTime) {
     public TaskResponse(Task task) {
         this(task.getId(), task.getTitle(),
                 task.getDescription(), task.getStatus(),

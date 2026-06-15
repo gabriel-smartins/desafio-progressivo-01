@@ -3,8 +3,10 @@ package com.github.gabrielsmartins.taskmanager.repository;
 import com.github.gabrielsmartins.taskmanager.model.Priority;
 import com.github.gabrielsmartins.taskmanager.model.Status;
 import com.github.gabrielsmartins.taskmanager.model.Task;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,13 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     Page<Task> findAllByFilters(@Param("status") Status status,
                                 @Param("priority") Priority priority,
                                 Pageable pageable);
+
+    @Query("SELECT t FROM Task t WHERE " +
+            "t.creator.id = :creatorId AND " +
+            "(:status IS NULL OR t.status = :status) AND " +
+            "(:priority IS NULL OR t.priority = :priority)")
+    Page<Task> findAllByFiltersAndCreatorId(@Param("status") Status status,
+                                            @Param("priority") Priority priority,
+                                            @Param("creatorId") UUID creatorId,
+                                            Pageable pageable);
 }
