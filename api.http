@@ -1,58 +1,121 @@
-// Categories
-###
-GET http://localhost:8080/categories
-###
+### ============================================================================
+### VARIÁVEIS GLOBAIS
+### ============================================================================
+@baseUrl = http://localhost:8080
+
+# Defina seus IDs de teste aqui
+@categoryId = de2adf9b-eb08-40f8-aea2-9594569e228d
+@taskId = c1ab8137-c359-492a-916e-06c76ec92fec
+@taskToUpdateId = b43ec9e2-7f51-4bf6-b144-80b525244e80
+
+
+### ============================================================================
+### 🔐 AUTH (RODE ESTES PRIMEIRO)
+### ============================================================================
+
+# Registrar novo usuário
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@test.example",
+  "password": "12345678",
+  "role": "ADMIN"
+}
 
 ###
-POST http://localhost:8080/categories
+
+# Fazer login e capturar o token
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
+
+{
+  "email": "johndoe@test.example",
+  "password": "12345678"
+}
+
+> {%
+    if (response.status === 200) {
+        var token = response.body.accessToken;
+        client.global.set("auth_token", token);
+        client.log("Token salvo: " + token);
+    }
+%}
+
+
+### ============================================================================
+### 🗂️ CATEGORIES
+### ============================================================================
+
+# Listar todas as categorias
+GET {{baseUrl}}/categories
+Authorization: Bearer {{auth_token}}
+
+###
+
+# Criar uma nova categoria
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "name": "Estudos"
 }
-###
 
-// Tasks
 
-###
-GET http://localhost:8080/tasks
-###
+### ============================================================================
+### ✅ TASKS
+### ============================================================================
 
-###
-GET http://localhost:8080/tasks?status=DONE
-###
+# Listar todas as tarefas
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{auth_token}}
 
 ###
-POST http://localhost:8080/tasks
+
+# Listar tarefas com filtro
+GET {{baseUrl}}/tasks?status=DONE
+Authorization: Bearer {{auth_token}}
+
+###
+
+# Criar uma nova tarefa
+POST {{baseUrl}}/tasks
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "title": "Configurar banco de dados Produção",
   "description": "Criar a instância no AWS RDS e pegar as credenciais.",
   "priority": "HIGH",
   "dueTime": "2026-12-31T23:59:59.000Z",
-  "categoryId": "de2adf9b-eb08-40f8-aea2-9594569e228d"
+  "categoryId": "{{categoryId}}"
 }
-###
 
 ###
-@id = de2adf9b-eb08-40f8-aea2-9594569e228d
-PATCH http://localhost:8080/tasks/b43ec9e2-7f51-4bf6-b144-80b525244e80
+
+# Atualizar uma tarefa existente
+PATCH {{baseUrl}}/tasks/{{taskToUpdateId}}
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "title": "Estudar Spring Data JPA",
   "description": "Fazer os relacionamentos funcionarem",
   "priority": "MEDIUM",
-  "categoryId": "de2adf9b-eb08-40f8-aea2-9594569e228d"
+  "categoryId": "{{categoryId}}"
 }
-###
 
 ###
-PATCH http://localhost:8080/tasks/c1ab8137-c359-492a-916e-06c76ec92fec/complete
+
+# Marcar tarefa como concluída
+PATCH {{baseUrl}}/tasks/{{taskId}}/complete
 Content-Type: application/json
-###
+Authorization: Bearer {{auth_token}}
 
 ###
-DELETE http://localhost:8080/tasks/c1ab8137-c359-492a-916e-06c76ec92fec
-###
+
+# Deletar uma tarefa
+DELETE {{baseUrl}}/tasks/{{taskId}}
+Authorization: Bearer {{auth_token}}
