@@ -1,20 +1,25 @@
 package com.github.gabrielsmartins.taskmanager.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Getter
-public class ErrorResponse {
-    private final LocalDateTime timestamp = LocalDateTime.now();
-    private final int status;
-    private final String error;
-    private final String message;
-
-    public ErrorResponse(int status, String error, String message) {
-        this.status = status;
-        this.error = error;
-        this.message = message;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ErrorResponse(
+        LocalDateTime timestamp,
+        Integer status,
+        String error,
+        String message,
+        List<FieldValidationError> validations
+) {
+    public ErrorResponse(Integer status, String error, String message) {
+        this(LocalDateTime.now(), status, error, message, null);
     }
+
+    public ErrorResponse(Integer status, String error, String message, List<FieldValidationError> validations) {
+        this(LocalDateTime.now(), status, error, message, validations);
+    }
+
+    public record FieldValidationError(String field, String message) {}
 }
